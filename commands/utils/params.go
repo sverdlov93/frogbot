@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"github.com/jfrog/jfrog-client-go/utils/log"
 	"os"
 	"strconv"
 	"strings"
@@ -14,9 +15,11 @@ import (
 type FrogbotParams struct {
 	JFrogEnvParams
 	GitParam
-	WorkingDirectory   string
-	InstallCommandName string
-	InstallCommandArgs []string
+	WorkingDirectory          string
+	InstallCommandName        string
+	IncludeAllVulnerabilities bool
+	InstallCommandArgs        []string
+	SimplifiedOutput          bool
 }
 
 type JFrogEnvParams struct {
@@ -84,7 +87,7 @@ func extractJFrogParamsFromEnv(params *FrogbotParams) error {
 	} else {
 		return fmt.Errorf("%s and %s or %s environment variables are missing", JFrogUserEnv, JFrogPasswordEnv, JFrogTokenEnv)
 	}
-	// Non mandatory Xray context params
+	// Non-mandatory Xray context params
 	_ = readParamFromEnv(jfrogWatchesEnv, &params.Watches)
 	_ = readParamFromEnv(jfrogProjectEnv, &params.Project)
 	return nil
@@ -92,7 +95,10 @@ func extractJFrogParamsFromEnv(params *FrogbotParams) error {
 
 func extractGitParamsFromEnv(params *FrogbotParams) error {
 	var err error
+
+	// Non-mandatory Git Api Endpoint
 	_ = readParamFromEnv(GitApiEndpointEnv, &params.ApiEndpoint)
+
 	if params.GitProvider, err = extractVcsProviderFromEnv(); err != nil {
 		return err
 	}
@@ -105,18 +111,24 @@ func extractGitParamsFromEnv(params *FrogbotParams) error {
 	if err = readParamFromEnv(GitTokenEnv, &params.Token); err != nil {
 		return err
 	}
-	if err = readParamFromEnv(GitBaseBranchEnv, &params.BaseBranch); err != nil {
-		return err
-	}
+	// Non-mandatory git branch and pr id.
+	_ = readParamFromEnv(GitBaseBranchEnv, &params.BaseBranch)
 	if pullRequestIDString := getTrimmedEnv(GitPullRequestIDEnv); pullRequestIDString != "" {
 		params.PullRequestID, err = strconv.Atoi(pullRequestIDString)
 		return err
 	}
-	return &errMissingEnv{GitPullRequestIDEnv}
+	return nil
 }
 
 func extractGeneralParamsFromEnv(params *FrogbotParams) {
 	params.WorkingDirectory = getTrimmedEnv(WorkingDirectoryEnv)
+	var err error
+	includeAllIssues := getTrimmedEnv(IncludeAllVulnerabilitiesEnv)
+	params.IncludeAllVulnerabilities, err = strconv.ParseBool(includeAllIssues)
+	if err != nil {
+		log.Info("JF_INCLUDE_ALL_VULNERABILITIES is off, the value is: ", includeAllIssues)
+		params.IncludeAllVulnerabilities = false
+	}
 	installCommand := getTrimmedEnv(InstallCommandEnv)
 	if installCommand == "" {
 		return
@@ -131,7 +143,7 @@ func extractGeneralParamsFromEnv(params *FrogbotParams) {
 func readParamFromEnv(envKey string, paramValue *string) error {
 	*paramValue = getTrimmedEnv(envKey)
 	if *paramValue == "" {
-		return &errMissingEnv{envKey}
+		return &ErrMissingEnv{envKey}
 	}
 	return nil
 }
@@ -147,9 +159,12 @@ func extractVcsProviderFromEnv() (vcsutils.VcsProvider, error) {
 		return vcsutils.GitHub, nil
 	case string(GitLab):
 		return vcsutils.GitLab, nil
+	// For backward compatibility, we are accepting also "bitbucket server"
+	case string(BitbucketServer), "bitbucket server":
+		return vcsutils.BitbucketServer, nil
 	}
 
-	return 0, fmt.Errorf("%s should be one of: '%s' or '%s'", GitProvider, GitHub, GitLab)
+	return 0, fmt.Errorf("%s should be one of: '%s', '%s' or '%s'", GitProvider, GitHub, GitLab, BitbucketServer)
 }
 
 func sanitizeEnv() error {

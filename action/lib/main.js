@@ -38,9 +38,19 @@ function main() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             core.startGroup('Frogbot');
-            utils_1.Utils.setFrogbotEnv();
+            const eventName = utils_1.Utils.setFrogbotEnv();
             yield utils_1.Utils.addToPath();
-            yield utils_1.Utils.execScanPullRequest();
+            switch (eventName) {
+                case "pull_request":
+                case "pull_request_target":
+                    yield utils_1.Utils.execScanPullRequest();
+                    break;
+                case "push":
+                    yield utils_1.Utils.execCreateFixPullRequests();
+                    break;
+                default:
+                    core.setFailed(eventName + " event is not supported by Frogbot");
+            }
         }
         catch (error) {
             core.setFailed(error.message);

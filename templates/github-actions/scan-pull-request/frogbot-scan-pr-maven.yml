@@ -1,7 +1,9 @@
-name: "Frogbot"
+name: "Frogbot Scan Pull Request"
 on:
   pull_request_target:
     types: [opened, synchronize]
+permissions:
+  pull-requests: write
 jobs:
   scan-pull-request:
     runs-on: ubuntu-latest
@@ -14,15 +16,16 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
 
       # Install prerequisites
-      - name: Setup Go
-        uses: actions/setup-go@v2
+      - name: Set up Java
+        uses: actions/setup-java@v3
         with:
-          go-version: 1.17.x
+          java-version: "11"
+          distribution: "temurin"
 
       - uses: jfrog/frogbot@v2
         env:
           # [Mandatory]
-          # JFrog platform URL
+          # JFrog platform URL (This functionality requires version 3.29.0 or above of Xray)
           JF_URL: ${{ secrets.JF_URL }}
 
           # [Mandatory if JF_ACCESS_TOKEN is not provided]
@@ -33,7 +36,7 @@ jobs:
           # JFrog password. Must be provided with JF_USER
           JF_PASSWORD: ${{ secrets.JF_PASSWORD }}
 
-          # [Manadatory]
+          # [Mandatory]
           # The GitHub token automatically generated for the job
           JF_GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -49,7 +52,7 @@ jobs:
 
           # [Optional, default: "."]
           # Relative path to the project in the git repository
-          # JF_WORKING_DIR: path/to/go.mod/dir
+          # JF_WORKING_DIR: path/to/pom.xml/dir
 
           # [Optional]
           # Xray Watches. Learn more about them here: https://www.jfrog.com/confluence/display/JFROG/Configuring+Xray+Watches
@@ -58,3 +61,7 @@ jobs:
           # [Optional]
           # JFrog project. Learn more about it here: https://www.jfrog.com/confluence/display/JFROG/Projects
           # JF_PROJECT: <project-key>
+
+          # [Optional, default: "FALSE"]
+          # Displays all existing vulnerabilities, including the ones that were added by the pull request.
+          # JF_INCLUDE_ALL_VULNERABILITIES: "TRUE"

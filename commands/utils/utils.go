@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"crypto"
+	"encoding/hex"
 	"fmt"
 	"os"
 
@@ -10,15 +12,15 @@ import (
 	clientLog "github.com/jfrog/jfrog-client-go/utils/log"
 )
 
-type errMissingEnv struct {
-	variableName string
+type ErrMissingEnv struct {
+	VariableName string
 }
 
-func (m *errMissingEnv) Error() string {
-	return fmt.Sprintf("'%s' environment variable is missing", m.variableName)
+func (m *ErrMissingEnv) Error() string {
+	return fmt.Sprintf("'%s' environment variable is missing", m.VariableName)
 }
 
-func Chdir(dir string) (cbk func(), err error) {
+func Chdir(dir string) (cbk func() error, err error) {
 	wd, err := os.Getwd()
 	if err != nil {
 		return nil, err
@@ -26,7 +28,7 @@ func Chdir(dir string) (cbk func(), err error) {
 	if err = os.Chdir(dir); err != nil {
 		return nil, err
 	}
-	return func() { err = os.Chdir(wd) }, err
+	return func() error { return os.Chdir(wd) }, err
 }
 
 func ReportUsage(commandName string, serverDetails *config.ServerDetails, usageReportSent chan<- error) {
@@ -50,4 +52,15 @@ func ReportUsage(commandName string, serverDetails *config.ServerDetails, usageR
 		clientLog.Debug(err.Error())
 		return
 	}
+}
+
+func Md5Hash(values ...string) (string, error) {
+	hash := crypto.MD5.New()
+	for _, ob := range values {
+		_, err := fmt.Fprint(hash, ob)
+		if err != nil {
+			return "", err
+		}
+	}
+	return hex.EncodeToString(hash.Sum(nil)), nil
 }
