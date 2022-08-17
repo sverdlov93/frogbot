@@ -70,17 +70,17 @@ jobs:
           COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: runner.os == 'Linux'
 
-      - uses: jfrog/setup-jfrog-cli@master
+      - uses: jfrog/setup-jfrog-cli@fix-is-base64
         env:
           # JFrog platform url (for example: https://acme.jfrog.io)
           JF_URL: ${{ secrets.JF_URL }}
 
           # Basic authentication credentials
-          JF_USER: ${{ secrets.JF_USER }}
-          JF_PASSWORD: ${{ secrets.JF_PASSWORD }}
+          # JF_USER: ${{ secrets.JF_USER }}
+          # JF_PASSWORD: ${{ secrets.JF_PASSWORD }}
 
           # JFrog platform access token (if JF_USER and JF_PASSWORD are not provided)
-          # JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
+          JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
       - run: |
           jf rt ping
           jf c use setup-jfrog-cli-server
