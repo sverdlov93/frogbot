@@ -104,6 +104,10 @@ Create a new pipeline with the following jenkinsfile:  [Scan Pull Request Jenkin
 Make sure to enable the build trigger.
 <img src="../../../images/jenkins-build-trigger.png">
 
+And paste it here : 
+
+<img src="../../../images/jenkins-paste-pipeline.png" width="650"> 
+
 </details>
 
 ---
@@ -111,7 +115,12 @@ Make sure to enable the build trigger.
   <summary>7️⃣ Scanning repository branches and fixing issues</summary>
   
 Create a new pipeline with the following jenkinsfile: [Scan Repository Jenkinsfile](scan-repository.jenkinsfile)
-  
+
 <img src="../../../images/jenkins-pipeline-select.png" width="650">  
+
+And paste it here :
+
+<img src="../../../images/jenkins-paste-pipeline.png" width="650"> 
+
 
 </details>
