@@ -88,20 +88,20 @@ Use the search bar to find **Generic Webhook Trigger** ([more info](https://plug
 <details>
   <summary>5️⃣ Prepare Jenkins Agent</summary>
 
-- It is necessary to have the package manager corresponding to the repository installed on the machine. For example, for
-  an npm project, npm must be installed.
+- It is essential to have the appropriate package manager used by the scanned project installed on the Jenkins Agent. For instance, if the project uses an npm project, you need to have the npm client installed.
 
 </details>
 
 ---
 <details>
   <summary>6️⃣ Scanning pull requests</summary>
-  
-Create a new pipeline with the following jenkinsfile:  [Scan Pull Request Jenkinsfile](./scan-pull-request.jenkinsfile)
+
+Create a new pipeline job using [this](./scan-pull-request.jenkinsfile) Jenkinsfile template.
   
 <img src="../../../images/jenkins-pipeline-select.png" width="650"> 
 
-Make sure to enable the build trigger.
+Enable the ‘Generic Webhook Trigger’:
+
 <img src="../../../images/jenkins-build-trigger.png">
 
 And paste it here : 
@@ -113,8 +113,9 @@ And paste it here :
 ---
 <details>
   <summary>7️⃣ Scanning repository branches and fixing issues</summary>
+
   
-Create a new pipeline with the following jenkinsfile: [Scan Repository Jenkinsfile](scan-repository.jenkinsfile)
+Create a new pipeline job using [this](./scan-repository.jenkinsfile) Jenkinsfile template.
 
 <img src="../../../images/jenkins-pipeline-select.png" width="650">  
 
