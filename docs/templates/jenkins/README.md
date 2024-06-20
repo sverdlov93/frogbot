@@ -104,6 +104,10 @@ Enable the ‘Generic Webhook Trigger’:
 
 <img src="../../../images/jenkins-build-trigger.png">
 
+And paste it here : 
+
+<img src="../../../images/jenkins-paste-pipeline.png" width="650"> 
+
 </details>
 
 ---
@@ -112,7 +116,12 @@ Enable the ‘Generic Webhook Trigger’:
 
   
 Create a new pipeline job using [this](./scan-repository.jenkinsfile) Jenkinsfile template.
-  
+
 <img src="../../../images/jenkins-pipeline-select.png" width="650">  
+
+And paste it here :
+
+<img src="../../../images/jenkins-paste-pipeline.png" width="650"> 
+
 
 </details>
